@@ -13,7 +13,8 @@ class AdminMainPage extends StatefulWidget {
 }
 
 class _AdminMainPageState extends State<AdminMainPage> {
-  int index = 0;
+  int selectedIndex = 0;
+  bool isSidebarOpen = false;
 
   final pages = [
     const AdminDashboard(),
@@ -25,13 +26,46 @@ class _AdminMainPageState extends State<AdminMainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      appBar: AppBar(
+        title: const Text("Admin Amanury"),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            setState(() => isSidebarOpen = true);
+          },
+        ),
+      ),
+      body: Stack(
         children: [
-          AdminSidebar(
-            selectedIndex: index,
-            onTap: (i) => setState(() => index = i),
-          ),
-          Expanded(child: pages[index]),
+          // ================= CONTENT (FULL WIDTH) =================
+          pages[selectedIndex],
+
+          // ================= SIDEBAR OVERLAY =================
+          if (isSidebarOpen)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => setState(() => isSidebarOpen = false),
+                child: Container(color: Colors.black.withOpacity(0.3)),
+              ),
+            ),
+
+          if (isSidebarOpen)
+            Positioned(
+              top: 0,
+              left: 0,
+              bottom: 0,
+              child: AdminSidebar(
+                selectedIndex: selectedIndex,
+                isExpanded: true,
+                onToggle: () => setState(() => isSidebarOpen = false),
+                onTap: (i) {
+                  setState(() {
+                    selectedIndex = i;
+                    isSidebarOpen = false;
+                  });
+                },
+              ),
+            ),
         ],
       ),
     );
