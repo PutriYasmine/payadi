@@ -5,90 +5,243 @@ class AdminDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        int crossAxisCount = 1;
-        double iconSize = 36;
-        double titleSize = 14;
-        double valueSize = 18;
-
-        if (constraints.maxWidth >= 1200) {
-          crossAxisCount = 3; // desktop
-          iconSize = 40;
-          titleSize = 16;
-          valueSize = 20;
-        } else if (constraints.maxWidth >= 700) {
-          crossAxisCount = 2; // tablet
-          iconSize = 38;
-          titleSize = 15;
-          valueSize = 19;
-        }
-
-        return GridView.count(
-          crossAxisCount: crossAxisCount,
-          padding: const EdgeInsets.all(20),
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-          children: [
-            _card(
-              "Total Produk",
-              "12",
-              Icons.inventory,
-              iconSize,
-              titleSize,
-              valueSize,
-            ),
-            _card(
-              "Total Pesanan",
-              "34",
-              Icons.shopping_cart,
-              iconSize,
-              titleSize,
-              valueSize,
-            ),
-            _card(
-              "Pendapatan",
-              "Rp 12.500.000",
-              Icons.monetization_on,
-              iconSize,
-              titleSize,
-              valueSize,
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _card(
-    String title,
-    String value,
-    IconData icon,
-    double iconSize,
-    double titleSize,
-    double valueSize,
-  ) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: iconSize, color: Colors.blueGrey),
-            const SizedBox(height: 12),
-            Text(title, style: TextStyle(fontSize: titleSize)),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: valueSize,
-                fontWeight: FontWeight.bold,
+            // ================= HEADER =================
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Dashboard Overview",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                Text(
+                  "Selamat datang di pusat kendali Payadi",
+                  style: TextStyle(color: Color(0xFF64748B)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+
+            // ================= STATS CARDS =================
+            LayoutBuilder(
+              builder: (context, constraints) {
+                int crossAxisCount = constraints.maxWidth > 1000
+                    ? 3
+                    : (constraints.maxWidth > 600 ? 2 : 1);
+                return GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 24,
+                  mainAxisSpacing: 24,
+                  childAspectRatio: 1.6,
+                  children: [
+                    _StatCard(
+                      title: "Total Produk",
+                      value: "152",
+                      icon: Icons.inventory_2_rounded,
+                      color: const Color(0xFF3B82F6),
+                      trend: "+12% dari bulan lalu",
+                    ),
+                    _StatCard(
+                      title: "Total Pesanan",
+                      value: "1,240",
+                      icon: Icons.shopping_bag_rounded,
+                      color: const Color(0xFF10B981),
+                      trend: "+8.4% dari bulan lalu",
+                    ),
+                    _StatCard(
+                      title: "Revenue",
+                      value: "Rp 12.5M",
+                      icon: Icons.payments_rounded,
+                      color: const Color(0xFF8B5CF6),
+                      trend: "+15% dari bulan lalu",
+                    ),
+                  ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 48),
+
+            // ================= RECENT ACTIVITY SECTION =================
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Aktivitas Terakhir",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                TextButton(onPressed: () {}, child: const Text("Lihat Semua")),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Column(
+                children: [
+                  _ActivityItem(
+                    title: "Produk baru ditambahkan",
+                    subtitle: "Amanury Floral Mist Special Edition",
+                    time: "2 jam yang lalu",
+                    icon: Icons.add_circle_outline,
+                    iconColor: Colors.blue,
+                  ),
+                  const Divider(indent: 70, height: 1),
+                  _ActivityItem(
+                    title: "Pesanan baru #8812",
+                    subtitle: "Pembayaran terverifikasi - Rp 250.000",
+                    time: "5 jam yang lalu",
+                    icon: Icons.shopping_cart_outlined,
+                    iconColor: Colors.green,
+                  ),
+                  const Divider(indent: 70, height: 1),
+                  _ActivityItem(
+                    title: "Stok menipis",
+                    subtitle: "Amanury Oud Series (Sisa 3 unit)",
+                    time: "Yesterday",
+                    icon: Icons.warning_amber_rounded,
+                    iconColor: Colors.orange,
+                  ),
+                ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+  final String trend;
+
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+    required this.trend,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                Text(
+                  trend,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF10B981),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActivityItem extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String time;
+  final IconData icon;
+  final Color iconColor;
+
+  const _ActivityItem({
+    required this.title,
+    required this.subtitle,
+    required this.time,
+    required this.icon,
+    required this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: const EdgeInsets.all(20),
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: iconColor.withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: iconColor, size: 20),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF1E293B),
+          fontSize: 15,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+      ),
+      trailing: Text(
+        time,
+        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
       ),
     );
   }
